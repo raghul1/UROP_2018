@@ -32,7 +32,7 @@ azim_num = 1;
 
 %   sampling parameters
 fs = 2000;
-windows = 100;
+windows = 500;
 dt = 1 / fs;
 
 
@@ -41,6 +41,7 @@ dt = 1 / fs;
 for i = 1:2
     figure (i)
     clf
+    
     
     for elev_num = 1:3              % new subplot for each azimuth
         for vel_num = 1:3           % new line for each velocity
@@ -54,15 +55,20 @@ for i = 1:2
             rawdata = cell2mat(rawdata);
             fclose(fid);
             
+            %%      CALCULATE PSD
             %   calculate for Fx only (most significant axis)
             DATA = rawdata(:,1);            % CHANGE FOR FT (2/2)
+            N = length(DATA);
             
-            %   use cross_psd function
-            data1 = DATA; data2 = DATA;
+            %   Welch method 
+            window = N/20;
+            noverlap = []; % default overlap 50%
+            nfft = window;
+            %[PSD,freq] = pwelch(DATA,window,noverlap, nfft, fs);
             
-            %%      CALCULATE PSD
-            [PSD,freq,d_f] = cross_psd(data1,data2,fs,windows);
-            
+            % from: https://stackoverflow.com/questions/22661758/how-to-improve-the-resolution-of-the-psd-using-matlab
+            [PSD,freq] = pwelch(DATA,hann(nfft),nfft/2, nfft, fs); 
+            %PSD = 10*log10(PSD);
             %%     PLOT DATA
             %   for each velocity on same subplot
             
@@ -81,12 +87,12 @@ for i = 1:2
             end
             hold on
             
+            
         end
         
         %%      SUBPLOT FORMATTING
         hold off
         subplot_title = sprintf('%d%c Elevation', elev(elev_num), char(176));
-        
         
         title(subplot_title, 'interpreter', 'latex', 'fontsize', 14)
         grid on
@@ -106,18 +112,18 @@ for i = 1:2
     
     if i == 1
         graph_title = sprintf('Magnitude vs Frequency, Azimuth = %d', azim(azim_num));
-        figure_name = sprintf("../../Data/2018-08-26 Data/Figs/Spectra/Fixed azimuth/Azimuth_%d_freq_crossPSD.png", azim(azim_num));
+        figure_name = sprintf("../../Data/2018-08-26 Data/Figs/Spectra/Fixed azimuth/Azimuth_%d_freq_welch.png", azim(azim_num));
         
     elseif i == 2
         graph_title = sprintf('Magnitude vs Frequency / Velocity, Azimuth = %d', azim(azim_num));
-        figure_name = sprintf("../../Data/2018-08-26 Data/Figs/Spectra/Fixed azimuth/Azimuth_%d_freqvel_crossPSD.png", azim(azim_num));
+        figure_name = sprintf("../../Data/2018-08-26 Data/Figs/Spectra/Fixed azimuth/Azimuth_%d_freqvel_welch.png", azim(azim_num));
         
     end
     
     suptitle(graph_title)
     
     % save figure as png
-    saveas(gcf, figure_name)
+    %saveas(gcf, figure_name)
 end
 
 

@@ -32,7 +32,7 @@ azim_num = 1;
 
 %   sampling parameters
 fs = 2000;
-windows = 200;
+windows = 100;
 dt = 1 / fs;
 
 
@@ -40,6 +40,7 @@ dt = 1 / fs;
 %   Create two figures, freq spectra and freq/vel spectra
 for i = 1:2
     figure (i)
+    clf
     
     
     for elev_num = 1:3              % new subplot for each azimuth
@@ -71,9 +72,12 @@ for i = 1:2
             %       Plot relevent data depending on figure
             if i == 1
                 plot(freq,(PSD), 'linewidth',1.5)
+                xlim([1 1E3])
                 
             elseif i ==2
                 plot(freq/vel(vel_num),(PSD), 'linewidth',1.5)
+                xlim([1 1E2])
+                
                 
             end
             hold on
@@ -82,33 +86,42 @@ for i = 1:2
         
         %%      SUBPLOT FORMATTING
         hold off
-        subplot_title = sprintf('%d%c Elevation', azim(azim_num), char(176));
+        subplot_title = sprintf('%d%c Elevation', elev(elev_num), char(176));
         
         
         title(subplot_title, 'interpreter', 'latex', 'fontsize', 14)
         grid on
-        xlim([10E-1 10E2])
         set(gca,'xscale','log','yscale','log','fontsize',15)
         
         
-%         % insert legend into empty subplot
-%         subplot(3,1,8)
-%         plot(0,0,  0,0,  0,0 )      % create shell plot
-%         axis off
-%         leg= legend('$v$ = 8', '$v$ = 15', '$v$ = 20');
-%         set(leg,'Interpreter','latex','fontsize', 20, 'location', 'west');
-        
+        %         % insert legend into empty subplot
+        %         subplot(3,1,8)
+        %         plot(0,0,  0,0,  0,0 )      % create shell plot
+        %         axis off
+        %         leg= legend('$v$ = 8', '$v$ = 15', '$v$ = 20');
+        %         set(leg,'Interpreter','latex','fontsize', 20, 'location', 'west');
         
     end
+    
+    %%      FIGURE FORMATTING AND SAVING
+    
+    if i == 1
+        graph_title = sprintf('Magnitude vs Frequency, Azimuth = %d', azim(azim_num));
+        figure_name = sprintf("../../Data/2018-08-26 Data/Figs/Spectra/Fixed azimuth/Azimuth_%d_freq_crossPSD.png", azim(azim_num));
+        
+    elseif i == 2
+        graph_title = sprintf('Magnitude vs Frequency / Velocity, Azimuth = %d', azim(azim_num));
+        figure_name = sprintf("../../Data/2018-08-26 Data/Figs/Spectra/Fixed azimuth/Azimuth_%d_freqvel_crossPSD.png", azim(azim_num));
+        
+    end
+    
+    suptitle(graph_title)
+    
+    % save figure as png
+    saveas(gcf, figure_name)
 end
 
-%%      FIGURE FORMATTING AND SAVING 
 
-%   figure title
-for i = 1:2
-    
-    
-end
 
 
 
